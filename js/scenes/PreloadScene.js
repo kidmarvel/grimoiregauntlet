@@ -219,9 +219,9 @@ initSystemsWithoutAudio() {
                     enemy_hit: scene.sound.add('sfx_enemy_hit'),
                     player_hit: scene.sound.add('sfx_player_hit'),
                     wave_start: scene.sound.add('sfx_wave_start')
-                };
+                }
 
-                // In AudioSystem.js or PreloadScene.js, add:
+// In AudioSystem.js or PreloadScene.js, add:
 playSfx(key) {
     console.log(`[SFX] ${key}`);
     // Don't actually play anything until we have files
