@@ -1,0 +1,14 @@
+{
+  "name": "grimoire-gauntlet",
+  "version": "3.0.0",
+  "description": "Arcane arena combat game with Phaser",
+  "main": "js/main.js",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Build step would go here'",
+    "test": "echo 'No tests yet'"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

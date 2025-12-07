@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grimoire Gauntlet | Arcane Arena Combat</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body>
+  <!-- Phaser Game Container -->
+  <div id="game-container"></div>
+  
+  <!-- UI Overlays (will be positioned over Phaser canvas) -->
+  <div id="ui-overlay">
+    <!-- Main Menu -->
+    <div id="mainMenu" class="screen active">
+      <div class="title-container">
+        <h1 class="title">GRIMOIRE GAUNTLET</h1>
+        <p class="subtitle">Arcane Arena Combat</p>
+        <div class="title-divider">
+          <div class="divider-line"></div>
+          <i class="fas fa-hat-wizard"></i>
+          <div class="divider-line"></div>
+        </div>
+      </div>
+      
+      <div class="menu-buttons">
+        <button id="fightBtn" class="btn-primary">
+          <i class="fas fa-fire"></i> NEW CHALLENGE
+        </button>
+        <button id="loadBtn" class="btn-secondary">
+          <i class="fas fa-scroll"></i> CONTINUE QUEST
+        </button>
+        <button id="howToPlayBtn" class="btn-tertiary">
+          <i class="fas fa-question-circle"></i> TOME OF WISDOM
+        </button>
+        <button id="creditsBtn" class="btn-tertiary">
+          <i class="fas fa-crown"></i> HALL OF SAGES
+        </button>
+      </div>
+      
+      <div class="player-stats-preview">
+        <div class="stat-item">
+          <span class="stat-label">Highest Wave:</span>
+          <span class="stat-value" id="highestWave">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total Spells:</span>
+          <span class="stat-value" id="totalSpells">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Play Time:</span>
+          <span class="stat-value" id="playTime">0h 0m</span>
+        </div>
+      </div>
+      
+      <div class="menu-footer">
+        <div class="audio-controls">
+          <button id="audioToggle" class="audio-btn" title="Toggle Music">
+            <i class="fas fa-volume-up"></i>
+          </button>
+          <button id="sfxToggle" class="audio-btn" title="Toggle Sound Effects">
+            <i class="fas fa-volume"></i>
+          </button>
+          <button id="fullscreenBtn" class="audio-btn" title="Toggle Fullscreen">
+            <i class="fas fa-expand"></i>
+          </button>
+        </div>
+        <div class="version-info">
+          <span>v3.0 | Phaser Edition</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game UI -->
+    <div id="gameUI" class="screen">
+      <div class="game-header">
+        <div class="game-title">
+          <i class="fas fa-hat-wizard"></i>
+          <span>Grimoire Gauntlet</span>
+        </div>
+        <div class="game-stats">
+          <span id="zoneName" class="zone-display">Forest of Beginnings</span>
+          <button id="pauseBtn" class="btn-icon" title="Pause Game">
+            <i class="fas fa-pause"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="player-ui-panel">
+        <div class="player-stats">
+          <div class="health-bar-container">
+            <div class="health-label">
+              <i class="fas fa-heart"></i>
+              <span>HEALTH</span>
+            </div>
+            <div class="health-bar">
+              <div id="healthFill" class="health-fill"></div>
+            </div>
+            <div id="playerHealth" class="health-text">100%</div>
+          </div>
+          
+          <div class="xp-container">
+            <div class="xp-label">
+              <i class="fas fa-star"></i>
+              <span>EXPERIENCE</span>
+            </div>
+            <div class="xp-bar">
+              <div id="xpFill" class="xp-fill"></div>
+            </div>
+            <div id="playerXP" class="xp-text">Level 1 | 0/10 XP</div>
+          </div>
+          
+          <div class="resource-container">
+            <div class="resource-item">
+              <i class="fas fa-gem"></i>
+              <div>
+                <div class="resource-label">Skill Points</div>
+                <div id="skillPoints" class="resource-value">0</div>
+              </div>
+            </div>
+            <div class="resource-item">
+              <i class="fas fa-wave-square"></i>
+              <div>
+                <div class="resource-label">Current Wave</div>
+                <div id="currentWave" class="resource-value">1</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="waveMessage" class="wave-display">
+        <div class="wave-content">
+          <i class="fas fa-skull-crossbones"></i>
+          <span class="wave-text">Wave 1 Approaching!</span>
+          <i class="fas fa-skull-crossbones"></i>
+        </div>
+      </div>
+      
+      <div class="spell-hotkeys-container">
+        <div class="spell-hotkeys-header">
+          <i class="fas fa-magic"></i>
+          <span>ARCANE SPELLS</span>
+        </div>
+        <div id="spellHotkeys" class="spell-hotkeys-grid"></div>
+        <div class="spell-hotkeys-footer">
+          Press <kbd>1-4</kbd> to cast | <kbd>Right Click</kbd> to switch target
+        </div>
+      </div>
+      
+      <div class="battle-log-container">
+        <div class="battle-log-header">
+          <i class="fas fa-scroll"></i>
+          <span>BATTLE LOG</span>
+          <button id="clearLogBtn" class="btn-small" title="Clear Log">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div id="battleLog" class="battle-log-content"></div>
+      </div>
+    </div>
+
+    <!-- Modals (same as before) -->
+    <div id="skillTreeModal" class="modal">
+      <!-- ... same modal content ... -->
+    </div>
+    
+    <div id="howToPlayModal" class="modal">
+      <!-- ... same modal content ... -->
+    </div>
+    
+    <div id="creditsModal" class="modal">
+      <!-- ... same modal content ... -->
+    </div>
+    
+    <div id="gameOverModal" class="modal">
+      <!-- ... same modal content ... -->
+    </div>
+  </div>
+
+  <!-- Phaser Library -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  
+  <!-- Game Scripts -->
+  <script src="js/utils/Constants.js"></script>
+  <script src="js/utils/Helpers.js"></script>
+  <script src="js/utils/SaveSystem.js"></script>
+  <script src="js/systems/AudioSystem.js"></script>
+  <script src="js/systems/UISystem.js"></script>
+  <script src="js/systems/SpellSystem.js"></script>
+  <script src="js/systems/WaveSystem.js"></script>
+  <script src="js/entities/Player.js"></script>
+  <script src="js/entities/Enemy.js"></script>
+  <script src="js/entities/Projectile.js"></script>
+  <script src="js/scenes/BootScene.js"></script>
+  <script src="js/scenes/PreloadScene.js"></script>
+  <script src="js/scenes/MainMenuScene.js"></script>
+  <script src="js/scenes/GameScene.js"></script>
+  <script src="js/scenes/GameOverScene.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

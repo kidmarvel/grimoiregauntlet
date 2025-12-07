@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grimoire Gauntlet - Load Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #0b0a17;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            color: #7c6afe;
+            text-align: center;
+        }
+        
+        .test-results {
+            margin-top: 20px;
+        }
+        
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .test-success {
+            background: rgba(0, 255, 0, 0.1);
+            border-left: 4px solid #00ff00;
+        }
+        
+        .test-error {
+            background: rgba(255, 0, 0, 0.1);
+            border-left: 4px solid #ff0000;
+        }
+        
+        .status {
+            width: 30px;
+            text-align: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .success {
+            color: #00ff00;
+        }
+        
+        .error {
+            color: #ff0000;
+        }
+        
+        .actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        button {
+            background: #7c6afe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        
+        button:hover {
+            background: #a18aff;
+        }
+        
+        .console {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            color: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Grimoire Gauntlet v3 - Load Test</h1>
+        
+        <div id="testResults" class="test-results">
+            <div class="test-item loading">
+                <div class="status">⏳</div>
+                <div>Loading scripts...</div>
+            </div>
+        </div>
+        
+        <div id="console" class="console"></div>
+        
+        <div class="actions">
+            <button onclick="runTests()">🔍 Run Tests Again</button>
+            <button onclick="startGame()">🚀 Start Game</button>
+            <button onclick="checkAssets()">🖼️ Check Assets</button>
+        </div>
+        
+        <div id="assetTest" style="margin-top: 20px; display: none;">
+            <h3>Asset Test Results</h3>
+            <div id="assetResults"></div>
+        </div>
+    </div>
+
+    <!-- Load all game scripts (same as index.html) -->
+    <script src="js/utils/Constants.js"></script>
+    <script src="js/utils/Helpers.js"></script>
+    <script src="js/utils/SaveSystem.js"></script>
+    <script src="js/systems/AudioSystem.js"></script>
+    <script src="js/systems/UISystem.js"></script>
+    <script src="js/systems/WaveSystem.js"></script>
+    <script src="js/entities/Player.js"></script>
+    <script src="js/entities/Enemy.js"></script>
+    <script src="js/entities/Projectile.js"></script>
+    <script src="js/systems/SpellSystem.js"></script>
+    <script src="js/scenes/BootScene.js"></script>
+    <script src="js/scenes/PreloadScene.js"></script>
+    <script src="js/scenes/MainMenuScene.js"></script>
+    <script src="js/scenes/GameScene.js"></script>
+    <script src="js/scenes/GameOverScene.js"></script>
+    <!-- Don't load main.js for testing -->
+    
+    <script>
+        let consoleLog = '';
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        // Capture console output
+        console.log = function(...args) {
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+            ).join(' ');
+            
+            consoleLog += '[LOG] ' + message + '\n';
+            originalConsoleLog.apply(console, args);
+            updateConsole();
+        };
+        
+        console.error = function(...args) {
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+            ).join(' ');
+            
+            consoleLog += '[ERROR] ' + message + '\n';
+            originalConsoleError.apply(console, args);
+            updateConsole();
+        };
+        
+        function updateConsole() {
+            const consoleEl = document.getElementById('console');
+            if (consoleEl) {
+                consoleEl.textContent = consoleLog;
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+        }
+        
+        // Required classes to test
+        const requiredClasses = [
+            { name: 'BootScene', type: 'scene' },
+            { name: 'PreloadScene', type: 'scene' },
+            { name: 'MainMenuScene', type: 'scene' },
+            { name: 'GameScene', type: 'scene' },
+            { name: 'GameOverScene', type: 'scene' },
+            { name: 'Player', type: 'entity' },
+            { name: 'Enemy', type: 'entity' },
+            { name: 'Projectile', type: 'entity' },
+            { name: 'SpellSystem', type: 'system' },
+            { name: 'WaveSystem', type: 'system' },
+            { name: 'UISystem', type: 'system' },
+            { name: 'AudioSystem', type: 'system' },
+            { name: 'Helpers', type: 'utility' },
+            { name: 'SaveSystem', type: 'utility' },
+            { name: 'CONSTANTS', type: 'constants' },
+            { name: 'COLORS', type: 'constants' }
+        ];
+        
+        function runTests() {
+            console.log('=== Running Load Tests ===');
+            
+            const testResults = document.getElementById('testResults');
+            testResults.innerHTML = '';
+            
+            let passed = 0;
+            let failed = 0;
+            
+            // Test each required class
+            requiredClasses.forEach(item => {
+                const testItem = document.createElement('div');
+                testItem.className = 'test-item';
+                
+                if (window[item.name]) {
+                    testItem.classList.add('test-success');
+                    testItem.innerHTML = `
+                        <div class="status success">✓</div>
+                        <div>
+                            <strong>${item.name}</strong> (${item.type}) loaded successfully
+                        </div>
+                    `;
+                    passed++;
+                    console.log(`✅ ${item.name} loaded`);
+                } else {
+                    testItem.classList.add('test-error');
+                    testItem.innerHTML = `
+                        <div class="status error">✗</div>
+                        <div>
+                            <strong>${item.name}</strong> (${item.type}) NOT FOUND
+                        </div>
+                    `;
+                    failed++;
+                    console.error(`❌ ${item.name} missing`);
+                }
+                
+                testResults.appendChild(testItem);
+            });
+            
+            // Summary
+            const summary = document.createElement('div');
+            summary.className = 'test-item';
+            summary.style.fontWeight = 'bold';
+            summary.style.marginTop = '20px';
+            
+            if (failed === 0) {
+                summary.classList.add('test-success');
+                summary.innerHTML = `
+                    <div class="status success">🎉</div>
+                    <div>All ${passed} tests passed! Game is ready to run.</div>
+                `;
+                console.log(`🎮 All ${passed} systems loaded successfully!`);
+            } else {
+                summary.classList.add('test-error');
+                summary.innerHTML = `
+                    <div class="status error">⚠️</div>
+                    <div>${passed} passed, ${failed} failed. Check console for errors.</div>
+                `;
+                console.error(`⚠️ ${failed} systems failed to load`);
+            }
+            
+            testResults.appendChild(summary);
+            
+            // Test Phaser availability
+            setTimeout(() => {
+                testPhaser();
+            }, 100);
+        }
+        
+        function testPhaser() {
+            const testItem = document.createElement('div');
+            testItem.className = 'test-item';
+            
+            if (typeof Phaser !== 'undefined') {
+                testItem.classList.add('test-success');
+                testItem.innerHTML = `
+                    <div class="status success">✓</div>
+                    <div>
+                        <strong>Phaser v${Phaser.VERSION}</strong> loaded successfully
+                    </div>
+                `;
+                console.log(`✅ Phaser v${Phaser.VERSION} loaded`);
+            } else {
+                testItem.classList.add('test-error');
+                testItem.innerHTML = `
+                    <div class="status error">✗</div>
+                    <div>
+                        <strong>Phaser</strong> NOT FOUND - check CDN link
+                    </div>
+                `;
+                console.error('❌ Phaser not loaded');
+            }
+            
+            document.getElementById('testResults').appendChild(testItem);
+        }
+        
+        function startGame() {
+            console.log('=== Starting Game Test ===');
+            
+            // Test game initialization
+            if (typeof Phaser === 'undefined') {
+                console.error('Cannot start game: Phaser not loaded');
+                alert('Phaser not loaded. Check CDN connection.');
+                return;
+            }
+            
+            // Check if all required classes are loaded
+            const missingClasses = requiredClasses.filter(item => !window[item.name]);
+            
+            if (missingClasses.length > 0) {
+                console.error('Missing classes:', missingClasses.map(c => c.name));
+                alert(`Missing ${missingClasses.length} required classes. Check console.`);
+                return;
+            }
+            
+            console.log('All dependencies loaded. Game can start.');
+            
+            // Create a minimal test game
+            try {
+                const testConfig = {
+                    type: Phaser.AUTO,
+                    width: 800,
+                    height: 600,
+                    backgroundColor: '#05040f',
+                    scene: {
+                        create: function() {
+                            console.log('Test game scene created!');
+                            
+                            // Test creating a player
+                            if (window.Player) {
+                                try {
+                                    const testPlayer = new Player(this, 400, 300);
+                                    console.log('✅ Player created successfully');
+                                    
+                                    // Add some test text
+                                    this.add.text(400, 200, '🎮 Test Game Running!', {
+                                        fontFamily: 'MedievalSharp',
+                                        fontSize: '32px',
+                                        color: '#7c6afe'
+                                    }).setOrigin(0.5);
+                                    
+                                    this.add.text(400, 250, 'All systems operational', {
+                                        fontFamily: 'MedievalSharp',
+                                        fontSize: '24px',
+                                        color: '#ffffff'
+                                    }).setOrigin(0.5);
+                                    
+                                    this.add.text(400, 500, 'Press F5 to return to tests', {
+                                        fontFamily: 'MedievalSharp',
+                                        fontSize: '18px',
+                                        color: '#cccccc'
+                                    }).setOrigin(0.5);
+                                    
+                                } catch (e) {
+                                    console.error('Failed to create player:', e);
+                                }
+                            }
+                        }
+                    }
+                };
+                
+                const testGame = new Phaser.Game(testConfig);
+                console.log('Test game started successfully');
+                
+            } catch (e) {
+                console.error('Failed to start test game:', e);
+                alert('Failed to start game: ' + e.message);
+            }
+        }
+        
+        function checkAssets() {
+            console.log('=== Checking Assets ===');
+            
+            const assetContainer = document.getElementById('assetTest');
+            const assetResults = document.getElementById('assetResults');
+            
+            assetContainer.style.display = 'block';
+            assetResults.innerHTML = '<div class="loading">Checking assets...</div>';
+            
+            // Test for essential assets
+            const essentialAssets = [
+                'assets/images/characters/player_idle.png',
+                'assets/images/characters/enemy_goblin.png',
+                'assets/images/effects/fireball.png',
+                'assets/images/backgrounds/forest.jpg',
+                'assets/sounds/main_theme.mp3',
+                'assets/sounds/fire_cast.wav'
+            ];
+            
+            let assetsLoaded = 0;
+            let assetsMissing = 0;
+            
+            essentialAssets.forEach(assetPath => {
+                const testItem = document.createElement('div');
+                testItem.className = 'test-item';
+                
+                // Create an image/audio element to test loading
+                const extension = assetPath.split('.').pop().toLowerCase();
+                let testElement;
+                
+                if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
+                    testElement = new Image();
+                } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
+                    testElement = new Audio();
+                } else {
+                    testElement = document.createElement('object');
+                }
+                
+                testElement.onload = () => {
+                    testItem.classList.add('test-success');
+                    testItem.innerHTML = `
+                        <div class="status success">✓</div>
+                        <div>${assetPath}</div>
+                    `;
+                    assetsLoaded++;
+                    updateAssetSummary();
+                };
+                
+                testElement.onerror = () => {
+                    testItem.classList.add('test-error');
+                    testItem.innerHTML = `
+                        <div class="status error">✗</div>
+                        <div>${assetPath}</div>
+                    `;
+                    assetsMissing++;
+                    updateAssetSummary();
+                    console.error(`Asset not found: ${assetPath}`);
+                };
+                
+                // Set src to trigger load
+                testElement.src = assetPath;
+                
+                assetResults.appendChild(testItem);
+            });
+            
+            function updateAssetSummary() {
+                if (assetsLoaded + assetsMissing === essentialAssets.length) {
+                    const summary = document.createElement('div');
+                    summary.className = 'test-item';
+                    summary.style.marginTop = '10px';
+                    summary.style.fontWeight = 'bold';
+                    
+                    if (assetsMissing === 0) {
+                        summary.classList.add('test-success');
+                        summary.innerHTML = `
+                            <div class="status success">✅</div>
+                            <div>All ${assetsLoaded} assets found!</div>
+                        `;
+                    } else {
+                        summary.classList.add('test-error');
+                        summary.innerHTML = `
+                            <div class="status error">⚠️</div>
+                            <div>${assetsLoaded} found, ${assetsMissing} missing</div>
+                        `;
+                    }
+                    
+                    // Remove existing summary if present
+                    const oldSummary = assetResults.querySelector('.summary');
+                    if (oldSummary) oldSummary.remove();
+                    
+                    summary.classList.add('summary');
+                    assetResults.appendChild(summary);
+                }
+            }
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', () => {
+            console.log('=== Grimoire Gauntlet Load Test ===');
+            console.log('Testing v3.0 Phaser Migration');
+            
+            // Wait a moment for all scripts to load
+            setTimeout(runTests, 500);
+        });
+    </script>
+</body>
+</html>
