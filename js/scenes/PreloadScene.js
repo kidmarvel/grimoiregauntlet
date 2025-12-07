@@ -73,81 +73,81 @@ class PreloadScene extends Phaser.Scene {
         });
     }
     
-    loadAssets() {
-        // Load player sprites
-        this.load.spritesheet('player_idle', 'assets/images/characters/player_idle.png', {
-            frameWidth: 64,
-            frameHeight: 64
-        });
-        
-        this.load.spritesheet('player_run', 'assets/images/characters/player_run.png', {
-            frameWidth: 64,
-            frameHeight: 64
-        });
-        
-        // Load enemy sprites
-        this.load.spritesheet('enemy_goblin', 'assets/images/characters/enemy_goblin.png', {
-            frameWidth: 48,
-            frameHeight: 48
-        });
-        
-        this.load.spritesheet('enemy_brute', 'assets/images/characters/enemy_brute.png', {
-            frameWidth: 64,
-            frameHeight: 64
-        });
-        
-        this.load.spritesheet('enemy_archer', 'assets/images/characters/enemy_archer.png', {
-            frameWidth: 48,
-            frameHeight: 48
-        });
-        
-        this.load.spritesheet('enemy_shaman', 'assets/images/characters/enemy_shaman.png', {
-            frameWidth: 56,
-            frameHeight: 56
-        });
-        
-        this.load.spritesheet('enemy_boss', 'assets/images/characters/enemy_boss.png', {
-            frameWidth: 96,
-            frameHeight: 96
-        });
-        
-        // Load spell effects
-        this.load.image('projectile_fire', 'assets/images/effects/fireball.png');
-        this.load.image('projectile_ice', 'assets/images/effects/icebolt.png');
-        this.load.image('projectile_plasma', 'assets/images/effects/plasma.png');
-        this.load.image('projectile_heal', 'assets/images/effects/healing.png');
-        
-        // Load backgrounds
-        this.load.image('forest_bg', 'assets/images/backgrounds/forest.jpg');
-        this.load.image('ice_cave_bg', 'assets/images/backgrounds/ice_cave.jpg');
-        this.load.image('volcano_bg', 'assets/images/backgrounds/volcano.jpg');
-        
-        // Load UI elements
-        this.load.image('ui_health_bar', 'assets/images/ui/health_bar.png');
-        this.load.image('ui_xp_bar', 'assets/images/ui/xp_bar.png');
-        this.load.image('ui_spell_slot', 'assets/images/ui/spell_slot.png');
-        
-        // Load sounds
-        this.load.audio('music_main', 'assets/sounds/main_theme.mp3');
-        this.load.audio('music_forest', 'assets/sounds/forest_theme.mp3');
-        this.load.audio('music_ice', 'assets/sounds/ice_theme.mp3');
-        this.load.audio('music_lava', 'assets/sounds/lava_theme.mp3');
-        
-        this.load.audio('sfx_fire_cast', 'assets/sounds/fire_cast.wav');
-        this.load.audio('sfx_ice_cast', 'assets/sounds/ice_cast.wav');
-        this.load.audio('sfx_heal_cast', 'assets/sounds/heal_cast.wav');
-        this.load.audio('sfx_thunder_cast', 'assets/sounds/thunder_cast.wav');
-        this.load.audio('sfx_level_up', 'assets/sounds/level_up.wav');
-        this.load.audio('sfx_enemy_hit', 'assets/sounds/enemy_hit.wav');
-        this.load.audio('sfx_player_hit', 'assets/sounds/player_hit.wav');
-        this.load.audio('sfx_wave_start', 'assets/sounds/wave_start.wav');
-        
-        // Load particle textures
-        this.load.image('particle_fire', 'assets/images/effects/particle_fire.png');
-        this.load.image('particle_ice', 'assets/images/effects/particle_ice.png');
-        this.load.image('particle_heal', 'assets/images/effects/particle_heal.png');
-        this.load.image('particle_hit', 'assets/images/effects/particle_hit.png');
-    }
+    // In loadAssets() method, replace with:
+loadAssets() {
+    // Don't load missing files - use placeholder graphics
+    console.log("Using placeholder graphics instead of loading files");
+    
+    // Create simple placeholder textures
+    this.createPlaceholderTextures();
+}
+
+createPlaceholderTextures() {
+    // Create simple colored rectangles as textures
+    const createColorTexture = (key, color, width, height) => {
+        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(color, 1);
+        graphics.fillRect(0, 0, width, height);
+        graphics.generateTexture(key, width, height);
+        graphics.destroy();
+    };
+    
+    // Player
+    createColorTexture('player_idle', 0xf6ff00, 64, 64);
+    createColorTexture('player_run', 0xf6ff00, 64, 64);
+    
+    // Enemies
+    createColorTexture('enemy_goblin', 0x00fc08, 48, 48);
+    createColorTexture('enemy_brute', 0x000087, 64, 64);
+    createColorTexture('enemy_archer', 0xfc3b00, 48, 48);
+    createColorTexture('enemy_shaman', 0x00bbff, 56, 56);
+    createColorTexture('enemy_boss', 0xD32F2F, 96, 96);
+    
+    // Projectiles
+    createColorTexture('projectile_fire', 0xff4422, 32, 32);
+    createColorTexture('projectile_ice', 0x66ccff, 32, 32);
+    createColorTexture('projectile_plasma', 0xcc66ff, 32, 32);
+    createColorTexture('projectile_heal', 0xaaffaa, 32, 32);
+    
+    // Particles
+    createColorTexture('particle_fire', 0xff4422, 16, 16);
+    createColorTexture('particle_ice', 0x66ccff, 16, 16);
+    createColorTexture('particle_heal', 0xaaffaa, 16, 16);
+    createColorTexture('particle_hit', 0xffffff, 16, 16);
+    
+    // Backgrounds
+    createColorTexture('forest_bg', 0x2a5c2a, 800, 600);
+    createColorTexture('ice_cave_bg', 0x66ccff, 800, 600);
+    createColorTexture('volcano_bg', 0xff4422, 800, 600);
+    
+    // UI
+    createColorTexture('ui_health_bar', 0xff4455, 300, 20);
+    createColorTexture('ui_xp_bar', 0xffcc00, 300, 15);
+    createColorTexture('ui_spell_slot', 0x7c6afe, 80, 80);
+    
+    console.log("Created placeholder textures");
+}
+
+// Also update the audio section to not fail on missing sounds
+create() {
+    // Create animations using our placeholder textures
+    this.createAnimations();
+    
+    // Initialize systems without audio for now
+    this.initSystemsWithoutAudio();
+    
+    // Go to main menu
+    this.scene.start('MainMenuScene');
+}
+
+initSystemsWithoutAudio() {
+    // Simple audio system that doesn't require files
+    window.AUDIO_SYSTEM = {
+        playMusic: () => console.log("Music would play"),
+        playSfx: () => console.log("SFX would play"),
+        init: () => console.log("Audio system ready (placeholders)")
+    };
+}
     
     create() {
         // Create animations
