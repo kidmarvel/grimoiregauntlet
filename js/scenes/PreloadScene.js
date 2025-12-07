@@ -220,6 +220,18 @@ initSystemsWithoutAudio() {
                     player_hit: scene.sound.add('sfx_player_hit'),
                     wave_start: scene.sound.add('sfx_wave_start')
                 };
+
+                // In AudioSystem.js or PreloadScene.js, add:
+playSfx(key) {
+    console.log(`[SFX] ${key}`);
+    // Don't actually play anything until we have files
+    return null;
+}
+
+playMusic(key) {
+    console.log(`[Music] ${key}`);
+    return null;
+}
                 
                 // Set SFX volume
                 Object.values(this.sfx).forEach(sound => {
